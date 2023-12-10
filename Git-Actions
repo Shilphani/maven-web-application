@@ -1,0 +1,32 @@
+on:
+  push:
+    branches:master
+      - '*'
+  pull_request:
+    branches:stage
+      - '*'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Docker
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'
+
+    - name: Login to AWS ECR
+      run: |
+        aws ecr get-login-password --region <your-aws-region> | docker login --username AWS --password-stdin <your-aws-account-id>.dkr.ecr.<your-aws-region>.amazonaws.com
+
+    - name: Build Docker image
+      run: |
+       docker build -t 258969405399.dkr.ecr.us-east-1.amazonaws.com/maven-web-application:1 .
+
+    - name: Push Docker image
+      run: |
+        docker push 258969405399.dkr.ecr.us-east-1.amazonaws.com/maven-web-application:1
